@@ -1,0 +1,35 @@
+{
+  "name": "nextjs-middlware-registry",
+  "version": "0.0.1",
+  "description": "A middleware registry for NextJS.",
+  "main": "dist/index.js",
+  "types": "dist/types",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "jest -c jest.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trynowio/nextjs-middlware-registry.git"
+  },
+  "author": "TryNow Inc.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/trynowio/nextjs-middlware-registry/issues"
+  },
+  "homepage": "https://github.com/trynowio/nextjs-middlware-registry#readme",
+  "peerDependencies": {
+    "next": "^12.2.3"
+  },
+  "dependencies": {
+    "path-to-regexp": "^6.2.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-typescript": "^8.3.3",
+    "next": "^12.2.3",
+    "rollup": "^2.77.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "typescript": "^4.7.4"
+  }
+}

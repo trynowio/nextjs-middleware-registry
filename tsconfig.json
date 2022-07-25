@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "declarationDir": "dist/types",
+    "target": "es2015"
+  },
+  "include": ["src/**/*"]
+}
