@@ -10,6 +10,7 @@ interface MiddlewareConfig {
 }
 
 export class MiddlewareRegistry {
+  // Maps maintain their order of insertion which is critical to the registry operating as expected.
   private registry: Map<string, MiddlewareConfig> = new Map()
   private request: NextRequest
 
@@ -17,10 +18,19 @@ export class MiddlewareRegistry {
     this.request = request
   }
 
+  /**
+   * Adds a middleware entry to the registry using the provided inputs.
+   * @param route Route to attempt to match against.
+   * @param middlewareFunction Middleware function to run if the route is a match.
+   * @param config Extra parameters to configure the entry
+   */
   public add(route: string, middlewareFunction: MiddlewareFunction, config?: Omit<MiddlewareConfig, 'middleware'>) {
     this.registry.set(route, { ...config, middleware: middlewareFunction })
   }
 
+  /**
+   * Executes the middleware on the request if any matches have been found.
+   */
   public async execute() {
     const middlewares = []
     for (const [path, config] of this.registry) {

@@ -1,9 +1,9 @@
-As of NextJS version 12.2.0 middleware gained official support. However the implementation left a lot to be desired in especially in the sense of building a large, robust set of middlewares that could conditionally be applied to routes and HTTP methods. This project aims to simplify the process of extending the NextJS middleware infrastructure by adding a helper class that allows a registry of middleware to be built and executed on matching routes as requests are made.
+As of NextJS version 12.2.0, middleware gained official support. However, the implementation left a lot to be desired with regard to building a large, robust set of middlewares that could conditionally be applied to a route and furthermore its specific HTTP methods. While all of these things are possible, the methodology for doing so and the suggested patterns don't leave much room for larger scale projects. This package aims to simplify the process of extending the NextJS middleware infrastructure by adding a helper class that allows the construction of a simple registry of middleware that can be run against requests as they are received by the server.
 
 ## Problems We are Trying to Solve
-1. Readability: The current solution requires many `if` blocks to accomplish the application of large sets of middleware.
-2. Simplicity: As stated in the previous point, if you want to conditionally run middleware, you need to add the conditional logic inline. This solution aims to give a primary matching algorithm with a few levers for customization.
-3. Granular Route/Method Matching: The provided `matcher` configuration provides only a single high-level filter to be used for the entire set of middleware and does not assist in the application of middleware to specific routes. This solution aims to give more granularity to the selection of routes to apply different middleware.
+1. __Readability__: The current solution requires many `if` blocks to accommodate an application with a large set of middleware. At a certain point, this becomes difficult to scale while maintaining context for the overall logic in place. This package aims to simplify the registration of middlewares into short succinct configuration statements.
+2. __Convention over Configuration__: As stated in the previous point, if you want to do much beyond the standard running of a single unit of middleware, you are inundated with decisions and the complexities of implementing those decisions. This solution aims to add a simple convention by providing a primary route matching algorithm with a few levers for customization.
+3. __Granular Route/Method Matching__: The provided `matcher` configuration provides only a single high-level filter to be used for the entire set of middleware and does not assist in the application of middleware to specific routes or methods. This solution aims to give more granularity to the selection of routes to apply specific middlewares to.
 
 ## Getting Started
 ### Instantiating the Registry
@@ -48,6 +48,10 @@ export async function middleware(req: NextRequest) {
 ```
 
 ## Matching Routes
+The library uses the path-to-regexp project to assist in the matching of paths to entries within the registry. This provides a succinct and well documented syntax to create match-strings against, while also providing a robust and customizable match mechanism.
+
+For more information we suggest reading the docs: [path-to-regexp](https://www.npmjs.com/package/path-to-regexp)
+
 ### Default Matching Behavior
 This library uses a very simple top-down first-match algorithm with a few caveats. The first route that is matched when looking for middleware to be applied will stop the matching process and execute the middlewares that have been matched to that point.
 
