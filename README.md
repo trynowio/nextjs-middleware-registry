@@ -1,6 +1,6 @@
 As of NextJS version 12.2.0 middleware gained official support. However the implementation left a lot to be desired in especially in the sense of building a large, robust set of middlewares that could conditionally be applied to routes and HTTP methods. This project aims to simplify the process of extending the NextJS middleware infrastructure by adding a helper class that allows a registry of middleware to be built and executed on matching routes as requests are made.
 
-##Problems We are Trying to Solve
+## Problems We are Trying to Solve
 1. Readability: The current solution requires many `if` blocks to accomplish the application of large sets of middleware.
 2. Simplicity: As stated in the previous point, if you want to conditionally run middleware, you need to add the conditional logic inline. This solution aims to give a primary matching algorithm with a few levers for customization.
 3. Granular Route/Method Matching: The provided `matcher` configuration provides only a single high-level filter to be used for the entire set of middleware and does not assist in the application of middleware to specific routes. This solution aims to give more granularity to the selection of routes to apply different middleware.
@@ -47,8 +47,8 @@ export async function middleware(req: NextRequest) {
 }
 ```
 
-##Matching Routes
-###Default Matching Behavior
+## Matching Routes
+### Default Matching Behavior
 This library uses a very simple top-down first-match algorithm with a few caveats. The first route that is matched when looking for middleware to be applied will stop the matching process and execute the middlewares that have been matched to that point.
 
 ### Transparent Matching
@@ -102,13 +102,13 @@ export async function middleware(req: NextRequest) {
 }
 ```
 
-#Contribution
+# Contribution
 We welcome all contribution with a few guidelines. If you are contributing in the form of an MR, please be thoughtful in
 your communication about the context of the MR, the problem it solves, and any change management required for anyone
 upgrading to the new version. All MRs will be reviewed and either approved and merged or declined with comments as to
 why it was declined.
 
-###Local Development
+### Local Development
 The easiest way to make changes is to make use of `npm link` to proxy the dependency on this package to your local
 instance of the project/build. This method will allow you to directly see your changes in a project that you have
 context for.

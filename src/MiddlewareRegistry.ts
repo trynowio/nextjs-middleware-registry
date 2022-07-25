@@ -23,7 +23,6 @@ export class MiddlewareRegistry {
 
   public async execute() {
     const middlewares = []
-    // eslint-disable-next-line no-restricted-syntax
     for (const [path, config] of this.registry) {
       if (
         pathToRegexp(path).test(this.request.nextUrl.pathname) &&
@@ -34,9 +33,7 @@ export class MiddlewareRegistry {
       }
     }
 
-    // eslint-disable-next-line no-restricted-syntax
     for (const middlewareFunction of middlewares) {
-      // eslint-disable-next-line no-await-in-loop
       await middlewareFunction()
     }
   }
