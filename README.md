@@ -84,7 +84,7 @@ export async function logRequest(req: NextRequest) {
 In some cases you may need more configurability in the function you provide for your middleware. In these cases you can call a function that returns a `MiddlewareFunction`.
 
 ### Method Matching
-If you need more granularity than just the route to match on, you may also match based on the HTTP method used to make the request. These matches will take use the same top-down first-match algorithm to determine whether a route is a match.
+If you need more granularity than just the route to match on, you may also match based on the HTTP method used to make the request. These matches will take use the same top-down first-match algorithm to determine whether a route is a match. By adding a `methods` property to the provided `MiddlewareConfig` you can supply an array of methods you would like to be considered for the specified route.
 ```typescript
 import { NextRequest } from 'next/server'
 import { MiddlewareRegistry } from 'nextjs-middlware-registry'
@@ -94,8 +94,8 @@ export async function middleware(req: NextRequest) {
   // Log all requests transparently
   registry.add('/:path*', logRequest, { transparent: true })
   // Continue with the standard list of non-transparent middlewares.
-  registry.add('/api/users', checkAuth({ scope: 'users_get' }), { method: ['GET']})  
-  registry.add('/api/users', checkAuth({ scope: 'users_update' }), { method: ['PUT', 'POST', 'DELETE']})
+  registry.add('/api/users', checkAuth({ scope: 'users_get' }), { methods: ['GET']})  
+  registry.add('/api/users', checkAuth({ scope: 'users_update' }), { methods: ['PUT', 'POST', 'DELETE']})
   registry.add('/api/orders', checkAuth)  
 
   await registry.execute()
