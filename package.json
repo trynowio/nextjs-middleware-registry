@@ -1,6 +1,6 @@
 {
   "name": "nextjs-middlware-registry",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "A middleware registry for NextJS.",
   "main": "dist/index.js",
   "types": "dist/types",
