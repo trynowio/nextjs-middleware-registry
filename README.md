@@ -53,10 +53,10 @@ The library uses the path-to-regexp project to assist in the matching of paths t
 For more information we suggest reading the docs: [path-to-regexp](https://www.npmjs.com/package/path-to-regexp)
 
 ### Default Matching Behavior
-This library uses a very simple top-down first-match algorithm with a few caveats. The first route that is matched when looking for middleware to be applied will stop the matching process and execute the middlewares that have been matched to that point.
+This library uses a very simple top-down first-match algorithm with a few caveats. The first route that is matched when looking for middleware to be applied will stop the matching process and execute the middlewares that have been matched to that point. Worth noting is that the route configurations are stored within a `Map` with the match-path of the configuration as the key. This effectively preventing accidental or intentional double-entry of a route configuration and forces the developer to reconcile the configuration and encourages simplicity over complexity. While the library will not present errors regarding a double entry, only the last entry will be recorded within the resulting `Map`.
 
 ### Transparent Matching
-In some instances there may be a need for applying multiple middlewares to a route without bringing the matching process to a halt. For example, you may want to use middleware to log every request that the server recieves but still perform downstream security operations to authenticate/authorize the user for that specific route. This can be accomplished using a transparent entry.
+There may be a need for applying multiple middlewares to a route without bringing the matching process to a halt. For example, you may want to use middleware to log every request that the server receives but still perform downstream security operations to authenticate/authorize the user for that specific route. This can be accomplished using a transparent entry.
 ```typescript
 import { NextRequest } from 'next/server'
 import { MiddlewareRegistry } from 'nextjs-middlware-registry'
@@ -72,6 +72,23 @@ export async function middleware(req: NextRequest) {
   await registry.execute()
 }
 ```
+
+### Binding Multiple Middlewares to a Single Route Configuration
+It is possible to bind multiple middlewares to a single route configuration within the registry. Given multiple middlewares the system will attempt to run them all in sequence unless the logic internal to the middleware dictates an exit of some kind by returning the `EXIT` Middleware Exit Code. This can be useful in cases where multiple middleware configurations should be applied to the same route to support multiple forms of interaction. For example if your application supports multiple forms of authentication, you may want to support both an API Key flow and a User Session flow with separate middlewares.
+```typescript
+import { NextRequest } from 'next/server'
+import { MiddlewareRegistry } from 'nextjs-middlware-registry'
+
+export async function middleware(req: NextRequest) {
+  const registry = new MiddlewareRegistry(req)
+  // Allow this endpoint to use both an API Key or a standard Auth Session  
+  registry.add('/api/users', [checkApiKey, checkAuth])
+  registry.add('/api/orders', checkAuth)  
+
+  await registry.execute()
+}
+```
+
 
 ### Middleware Function
 Middleware functions should be async functions that have a `NextRequest` as their only parameter. Upon execution the request will be injected into the function upon being run.
