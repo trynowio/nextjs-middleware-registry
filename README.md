@@ -91,13 +91,15 @@ export async function middleware(req: NextRequest) {
 
 
 ### Middleware Function
-Middleware functions should be async functions that have a `NextRequest` as their only parameter. Upon execution the request will be injected into the function upon being run.
+Middleware functions should be async functions that have an optional `NextRequest` as their only parameter. Upon execution the request will be injected into the function upon being run as a parameter. Middleware functions should return a `MiddlewareExitCode` but don't necessarily have to as `PROCEED` is implied at the end of the middleware unless a different exit code is defined within the return.
 
 ```typescript
-import { NextRequest } from "next/server";
+import {NextRequest} from "next/server";
+import {MiddlewareExitCode} from "./MiddlewareExitCode";
 
 export async function logRequest(req: NextRequest) {
-  console.log({ msg: "request_started", path: req.nextUrl.pathname, method: req.nextUrl.method })
+    console.log({msg: "request_started", path: req.nextUrl.pathname, method: req.nextUrl.method})
+    return MiddlewareExitCode.PROCEED
 }
 ```
 

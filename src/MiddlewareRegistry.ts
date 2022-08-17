@@ -30,7 +30,7 @@ export class MiddlewareRegistry {
     let middlewareExitCode: MiddlewareExitCode = MiddlewareExitCode.NEXT
     let middlewareFunction = middlewareChain.next()
     do {
-      middlewareExitCode = await middlewareFunction.value() || MiddlewareExitCode.NEXT
+      middlewareExitCode = await middlewareFunction.value(this.request) || MiddlewareExitCode.NEXT
       middlewareFunction = middlewareChain.next()
     } while (middlewareExitCode !== MiddlewareExitCode.EXIT )
   }
@@ -45,6 +45,7 @@ export class MiddlewareRegistry {
         if (!config.transparent) return async () => MiddlewareExitCode.EXIT
       }
     }
+    // Append an implicit EXIT if none was previously defined.
     return async () => MiddlewareExitCode.EXIT
   }
 }
