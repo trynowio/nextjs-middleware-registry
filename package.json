@@ -1,5 +1,5 @@
 {
-  "name": "nextjs-middlware-registry",
+  "name": "nextjs-middleware-registry",
   "version": "0.0.5",
   "description": "A middleware registry for NextJS.",
   "main": "dist/index.js",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/trynowio/nextjs-middlware-registry.git"
+    "url": "git+https://github.com/trynowio/nextjs-middleware-registry.git"
   },
   "author": "TryNow Inc.",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/trynowio/nextjs-middlware-registry/issues"
+    "url": "https://github.com/trynowio/nextjs-middleware-registry/issues"
   },
-  "homepage": "https://github.com/trynowio/nextjs-middlware-registry#readme",
+  "homepage": "https://github.com/trynowio/nextjs-middleware-registry#readme",
   "peerDependencies": {
     "next": "^12.2.3"
   },
