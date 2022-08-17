@@ -1,4 +1,4 @@
 import {MiddlewareExitCode} from "./MiddlewareExitCode";
-import {NextRequest} from "next/server";
+import {MiddlewareRequest} from "./MiddlewareRequest";
 
-export type MiddlewareFunction = (req?: NextRequest) => Promise<MiddlewareExitCode> | Promise<void>
+export type MiddlewareFunction = (req?: MiddlewareRequest) => Promise<MiddlewareExitCode> | Promise<void>
