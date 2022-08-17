@@ -27,7 +27,7 @@ export class MiddlewareRegistry {
    */
   public async execute() {
     const middlewareChain = this.composeMiddlewareChain()
-    let middlewareExitCode = MiddlewareExitCode.NEXT
+    let middlewareExitCode: MiddlewareExitCode = MiddlewareExitCode.NEXT
     let middlewareFunction = middlewareChain.next()
     do {
       middlewareExitCode = await middlewareFunction.value() || MiddlewareExitCode.NEXT
@@ -42,8 +42,9 @@ export class MiddlewareRegistry {
         (!config.methods || config.methods?.includes(this.request.method))
       ) {
         Array.isArray(config.middleware) ? yield* config.middleware : yield config.middleware
-        if (!config.transparent) return () => Promise.resolve(MiddlewareExitCode.EXIT)
+        if (!config.transparent) return async () => MiddlewareExitCode.EXIT
       }
     }
+    return async () => MiddlewareExitCode.EXIT
   }
 }
