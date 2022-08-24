@@ -9,7 +9,6 @@ const baseConfig = {
 
 const unitConfig = {
   testRegex: ['/*.u.spec.*$'],
-  // setupFilesAfterEnv: ['<rootDir>/jest.u.setup.ts'],
   ...baseConfig,
 }
 
