@@ -1,4 +1,6 @@
-import helloWorld from '../function'
+function helloWorld() {
+    return 'Hello World'
+}
 
 describe('helloWorld', () => {
     it('should return helloWorld', () => {
