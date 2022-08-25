@@ -17,6 +17,7 @@
     "no-else-return"   : 1,
     "semi"             : [1, "always"],
     "space-unary-ops"  : 2,
+    "object-curly-spacing": ["error", "always"],
     "max-len": [
       "error",
       {

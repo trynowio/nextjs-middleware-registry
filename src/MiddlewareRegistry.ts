@@ -1,10 +1,10 @@
-import {pathToRegexp} from "path-to-regexp";
-import {NextRequest} from "next/server";
-import {MiddlewareExitCode} from "./MiddlewareExitCode";
-import {MiddlewareConfig} from "./MiddlewareConfig";
-import {MiddlewareFunction} from "./MiddlewareFunction";
-import {NextApiRequest} from "next";
-import {MiddlewareRequest} from "./MiddlewareRequest";
+import { pathToRegexp } from "path-to-regexp";
+import { NextRequest } from "next/server";
+import { MiddlewareExitCode } from "./MiddlewareExitCode";
+import { MiddlewareConfig } from "./MiddlewareConfig";
+import { MiddlewareFunction } from "./MiddlewareFunction";
+import { NextApiRequest } from "next";
+import { MiddlewareRequest } from "./MiddlewareRequest";
 
 export class MiddlewareRegistry<R extends MiddlewareRequest> {
     private registry: Map<string, MiddlewareConfig> = new Map();
@@ -28,7 +28,11 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
    * @param middleware Middleware function to run if the route is a match.
    * @param config Extra parameters to configure the entry
    */
-    public add(route: string, middleware: MiddlewareFunction | MiddlewareFunction[], config?: Omit<MiddlewareConfig, 'middleware'>) {
+    public add(
+        route: string,
+        middleware: MiddlewareFunction | MiddlewareFunction[],
+        config?: Omit<MiddlewareConfig, 'middleware'>
+    ) {
         this.registry.set(route, { ...config, middleware: middleware });
     }
 
