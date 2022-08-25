@@ -9,7 +9,7 @@
     "watch": "rollup -c --watch",
     "test": "jest -c jest.config.js",
     "lint": "eslint --ext .ts,.js ./src/",
-    "lint:fix": "eslint --fix --ext .ts,.js ./src/"
+    "lint:fix": "eslint --fix . --ext .ts,.js ./src/*"
   },
   "repository": {
     "type": "git",
