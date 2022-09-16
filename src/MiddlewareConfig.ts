@@ -1,4 +1,4 @@
-import {MiddlewareFunction} from "./MiddlewareFunction";
+import { MiddlewareFunction } from "./MiddlewareFunction";
 
 export interface MiddlewareConfig {
   middleware: MiddlewareFunction | MiddlewareFunction[]
