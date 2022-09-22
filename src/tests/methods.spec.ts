@@ -2,25 +2,21 @@ import { MiddlewareRegistry } from "../MiddlewareRegistry";
 import { NextApiRequest } from "next";
 
 describe('MiddlewareConfig.methods', () => {
-    it('should add the methods specified to the registry when provided and return ' +
-        'undefined otherwise', async () => {
-        const request = { url: '/api/a' } as NextApiRequest;
+    it('should execute middleware for specified Http verb provided', async () => {
+        const request = { url: '/api/a', method: 'GET' } as NextApiRequest;
         const registry = new MiddlewareRegistry(request);
-        // GIVEN a middleware A
+        // GIVEN two middlewares
         const middlewareA = jest.fn();
-        // GIVEN three routes /api/a, /api/b, api/c with varying methods passed to the config
+        const middlewareB = jest.fn();
+        // GIVEN route /api/a using two different middlewares
         registry.add('/api/a', middlewareA, { methods: ['GET'] });
-        registry.add('/api/b', middlewareA, { methods: ['GET', 'POST'] });
-        registry.add('/api/c', middlewareA);
+        registry.add('/api/a', middlewareB, { methods: ['POST'] });
 
         // WHEN executed
         await registry.execute();
 
-        // EXPECT /api/a methods to include only GET
-        expect((registry["registry"].get('/api/a').methods)).toEqual(expect.arrayContaining(['GET']));
-        // EXPECT /api/b to include GET and POST
-        expect((registry["registry"].get('/api/b').methods)).toEqual(expect.arrayContaining(['GET', 'POST']));
-        // EXPECT /api/c methods to be undefined
-        expect((registry["registry"].get('/api/c').methods)).toBeUndefined();
+        // EXPECT middleware associated with specified Http verb is executed
+        expect(middlewareA).toHaveBeenCalled();
+        expect(middlewareB).not.toHaveBeenCalled();
     });
 });
