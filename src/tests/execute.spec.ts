@@ -2,18 +2,18 @@ import { MiddlewareRegistry } from "../MiddlewareRegistry";
 import { NextApiRequest } from "next";
 
 describe('MiddlewareRegistry.execute', () => {
-    it('should run to check configured matches', () => {
-        async function middleware(req: NextApiRequest) {
-            const request = { url: '/api/a' } as NextApiRequest;
-            const registry = new MiddlewareRegistry(request);
-            const middlewareA = jest.fn();
-            registry.add('/api/a', middlewareA);
-            await registry.execute();
-            expect(registry.execute()).toHaveBeenCalledTimes(1);
-        }
-        // expect(execute).toHaveBeenCalledTimes(1);
+    it('should not call a middleware before execute', async () => {
+        const request = { url: '/api/a' } as NextApiRequest;
+        const registry = new MiddlewareRegistry(request);
+        // GIVEN a middleware
+        const middleware = jest.fn();
+        // GIVEN route /api/a
+        registry.add('/api/(.*)', middleware, { transparent: true });
+        registry.add('/api/a', middleware);
+        expect(middleware).not.toHaveBeenCalled();
+        // WHEN the registry is executed
+        await registry.execute();
+        // EXPECT the middleware to have been called
+        expect(middleware).toHaveBeenCalledTimes(2);
     });
 });
-
-// should not run middleware without execute
-// should run middleware with execute
