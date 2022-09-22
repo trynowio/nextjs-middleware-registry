@@ -2,8 +2,8 @@ import { MiddlewareRegistry } from "../MiddlewareRegistry";
 import { NextApiRequest } from "next";
 
 describe('MiddlewareRegistry.methods', () => {
-    it('should add the methods specified to the registry when provided and all ' +
-        'standard methods otherwise', async () => {
+    it('should add the methods specified to the registry when provided and return ' +
+        'undefined otherwise', async () => {
         const request = { url: '/api/a' } as NextApiRequest;
         const registry = new MiddlewareRegistry(request);
         // GIVEN a middleware A
