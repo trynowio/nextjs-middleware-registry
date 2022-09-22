@@ -1,17 +1,17 @@
-import { pathToRegexp } from "path-to-regexp";
-import { NextRequest } from "next/server";
-import { MiddlewareExitCode } from "./MiddlewareExitCode";
-import { MiddlewareConfig } from "./MiddlewareConfig";
-import { MiddlewareFunction } from "./MiddlewareFunction";
-import { NextApiRequest } from "next";
-import { MiddlewareRequest } from "./MiddlewareRequest";
+import { pathToRegexp } from 'path-to-regexp'
+import { NextRequest } from 'next/server'
+import { MiddlewareExitCode } from './MiddlewareExitCode'
+import { MiddlewareConfig } from './MiddlewareConfig'
+import { MiddlewareFunction } from './MiddlewareFunction'
+import { NextApiRequest } from 'next'
+import { MiddlewareRequest } from './MiddlewareRequest'
 
 export class MiddlewareRegistry<R extends MiddlewareRequest> {
-  private registry: Map<string, MiddlewareConfig> = new Map();
-  private readonly request: R;
+  private registry: Map<string, MiddlewareConfig> = new Map()
+  private readonly request: R
 
   constructor(request: R) {
-    this.request = request;
+    this.request = request
   }
 
   /**
@@ -19,7 +19,7 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
    * @param request Request to inspect
    */
   public static isNextRequest(request: any): request is NextRequest {
-    return !!request.nextUrl;
+    return !!request.nextUrl
   }
 
   /**
@@ -31,24 +31,22 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
   public add(
     route: string,
     middleware: MiddlewareFunction | MiddlewareFunction[],
-    config?: Omit<MiddlewareConfig, "middleware">
+    config?: Omit<MiddlewareConfig, 'middleware'>
   ) {
-    this.registry.set(route, { ...config, middleware: middleware });
+    this.registry.set(route, { ...config, middleware: middleware })
   }
 
   /**
    * Executes the middleware chain on the request if any matches have been found.
    */
   public async execute() {
-    const middlewareChain = this.composeMiddlewareChain();
-    let middlewareExitCode: MiddlewareExitCode = MiddlewareExitCode.NEXT;
-    let middlewareFunction = middlewareChain.next();
+    const middlewareChain = this.composeMiddlewareChain()
+    let middlewareExitCode: MiddlewareExitCode = MiddlewareExitCode.NEXT
+    let middlewareFunction = middlewareChain.next()
     do {
-      middlewareExitCode =
-        (await middlewareFunction.value(this.request)) ||
-        MiddlewareExitCode.NEXT;
-      middlewareFunction = middlewareChain.next();
-    } while (middlewareExitCode !== MiddlewareExitCode.EXIT);
+      middlewareExitCode = (await middlewareFunction.value(this.request)) || MiddlewareExitCode.NEXT
+      middlewareFunction = middlewareChain.next()
+    } while (middlewareExitCode !== MiddlewareExitCode.EXIT)
   }
 
   /**
@@ -56,24 +54,18 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
    * route configurations to run middleware against.
    * @private
    */
-  private *composeMiddlewareChain(): Generator<
-    MiddlewareFunction,
-    MiddlewareFunction,
-    undefined
-  > {
+  private *composeMiddlewareChain(): Generator<MiddlewareFunction, MiddlewareFunction, undefined> {
     for (const [path, config] of this.registry) {
       if (
         pathToRegexp(path).test(this.getRequestPath()) &&
         (!config.methods || config.methods?.includes(this.request.method))
       ) {
-        Array.isArray(config.middleware)
-          ? yield* config.middleware
-          : yield config.middleware;
-        if (!config.transparent) return async () => MiddlewareExitCode.EXIT;
+        Array.isArray(config.middleware) ? yield* config.middleware : yield config.middleware
+        if (!config.transparent) return async () => MiddlewareExitCode.EXIT
       }
     }
     // Append an implicit EXIT if none was previously defined.
-    return async () => MiddlewareExitCode.EXIT;
+    return async () => MiddlewareExitCode.EXIT
   }
 
   /**
@@ -84,8 +76,8 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
    */
   private getRequestPath(): string {
     if (MiddlewareRegistry.isNextRequest(this.request)) {
-      return this.request.nextUrl.pathname;
+      return this.request.nextUrl.pathname
     }
-    return (this.request as NextApiRequest).url;
+    return (this.request as NextApiRequest).url
   }
 }

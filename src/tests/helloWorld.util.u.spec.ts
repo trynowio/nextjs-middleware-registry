@@ -1,11 +1,11 @@
 function helloWorld() {
-    return 'Hello World'
+  return 'Hello World'
 }
 
 describe('helloWorld', () => {
-    it('should return helloWorld', () => {
-        const result = helloWorld()
+  it('should return helloWorld', () => {
+    const result = helloWorld()
 
-        expect(result).toEqual('Hello World')
-    })
+    expect(result).toEqual('Hello World')
+  })
 })

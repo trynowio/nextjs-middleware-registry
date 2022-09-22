@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
-import { NextApiRequest } from "next";
+import { NextRequest } from 'next/server'
+import { NextApiRequest } from 'next'
 
-export type MiddlewareRequest = NextRequest | NextApiRequest;
+export type MiddlewareRequest = NextRequest | NextApiRequest

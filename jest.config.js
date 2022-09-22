@@ -15,5 +15,5 @@ const unitConfig = {
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  ...unitConfig
+  ...unitConfig,
 }
