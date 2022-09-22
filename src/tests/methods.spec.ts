@@ -1,7 +1,7 @@
 import { MiddlewareRegistry } from "../MiddlewareRegistry";
 import { NextApiRequest } from "next";
 
-describe('MiddlewareRegistry.methods', () => {
+describe('MiddlewareConfig.methods', () => {
     it('should add the methods specified to the registry when provided and return ' +
         'undefined otherwise', async () => {
         const request = { url: '/api/a' } as NextApiRequest;
@@ -16,7 +16,7 @@ describe('MiddlewareRegistry.methods', () => {
         // WHEN executed
         await registry.execute();
 
-        // EXPECT /api/a methods to include GET
+        // EXPECT /api/a methods to include only GET
         expect((registry["registry"].get('/api/a').methods)).toEqual(expect.arrayContaining(['GET']));
         // EXPECT /api/b to include GET and POST
         expect((registry["registry"].get('/api/b').methods)).toEqual(expect.arrayContaining(['GET', 'POST']));
