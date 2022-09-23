@@ -78,7 +78,7 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
         if (MiddlewareRegistry.isNextRequest(this.request)){
             return this.request.nextUrl.pathname;
         } 
-        return new URL(this.request.url).pathname;
+        return this.request.url.split('?')[0];
     
     }
 
