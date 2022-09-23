@@ -33,7 +33,7 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
         middleware: MiddlewareFunction | MiddlewareFunction[],
         config?: Omit<MiddlewareConfig, 'middleware'>
     ) {
-        this.registry.set(route, { ...config, middleware: middleware });
+        this.registry.set(this.serializeToRegistryKey(route, config?.methods), { ...config, middleware: middleware });
     }
 
     /**
@@ -55,10 +55,11 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
    * @private
    */
     private *composeMiddlewareChain(): Generator<MiddlewareFunction, MiddlewareFunction, undefined> {
-        for (const [path, config] of this.registry) {
+        for (const [serializedKey, config] of this.registry) {
+            const route = this.deserializeKeyToPathAndMethods(serializedKey);
             if (
-                pathToRegexp(path).test(this.getRequestPath()) &&
-        (!config.methods || config.methods?.includes(this.request.method))
+                pathToRegexp(route).test(this.getRequestPath()) &&
+                (!config.methods || config.methods?.includes(this.request.method))
             ) {
                 Array.isArray(config.middleware) ? yield* config.middleware : yield config.middleware;
                 if (!config.transparent) return async () => MiddlewareExitCode.EXIT;
@@ -80,5 +81,25 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
         } 
         return (this.request as NextApiRequest).url;
     
+    }
+
+    /**
+     * Since different middleware may be added for the same route but under different HTTP verbs, a composite key
+     * is required for the middleware mapping.
+     * @param route Route passed when added to the registry
+     * @param methods Methods, if any, to distinguish the entry by
+     * @private
+     */
+    private serializeToRegistryKey(route: string, methods?: MiddlewareConfig['methods']): string {
+        return JSON.stringify({ route, methods });
+    }
+
+    /**
+     * Given a serialized key from the middleware mapping, return the route
+     * @param serializedKey The serialized key to parse
+     * @private
+     */
+    private deserializeKeyToPathAndMethods(serializedKey: string): string {
+        return JSON.parse(serializedKey)!.route;
     }
 }
