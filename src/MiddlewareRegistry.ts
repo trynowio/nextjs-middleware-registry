@@ -56,7 +56,7 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
    */
     private *composeMiddlewareChain(): Generator<MiddlewareFunction, MiddlewareFunction, undefined> {
         for (const [serializedKey, config] of this.registry) {
-            const route = this.deserializeKeyToPathAndMethods(serializedKey);
+            const route = this.deserializeKeyToPath(serializedKey);
             if (
                 pathToRegexp(route).test(this.getRequestPath()) &&
                 (!config.methods || config.methods?.includes(this.request.method))
@@ -99,7 +99,7 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
      * @param serializedKey The serialized key to parse
      * @private
      */
-    private deserializeKeyToPathAndMethods(serializedKey: string): string {
+    private deserializeKeyToPath(serializedKey: string): string {
         return JSON.parse(serializedKey)!.route;
     }
 }
