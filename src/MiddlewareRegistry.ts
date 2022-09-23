@@ -33,7 +33,7 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
         middleware: MiddlewareFunction | MiddlewareFunction[],
         config?: Omit<MiddlewareConfig, 'middleware'>
     ) {
-        this.registry.set(this.serializeToRegistryKey(route, config?.methods), { ...config, middleware: middleware });
+        this.registry.set(this.serializeToRegistryKey(route, config?.methods), { ...config, middleware });
     }
 
     /**
