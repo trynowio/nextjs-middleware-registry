@@ -1,6 +1,6 @@
 import { NextApiRequest } from "next";
 import { MiddlewareRegistry } from "../MiddlewareRegistry";
-import { shuffle } from "../utils/shuffle";
+import { shuffle } from "./utils/shuffle";
 
 describe('compositeKey', () => {
     it.each(
