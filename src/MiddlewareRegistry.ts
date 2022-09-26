@@ -3,7 +3,6 @@ import { NextRequest } from "next/server";
 import { MiddlewareExitCode } from "./MiddlewareExitCode";
 import { MiddlewareConfig } from "./MiddlewareConfig";
 import { MiddlewareFunction } from "./MiddlewareFunction";
-import { NextApiRequest } from "next";
 import { MiddlewareRequest } from "./MiddlewareRequest";
 
 export class MiddlewareRegistry<R extends MiddlewareRequest> {
@@ -79,7 +78,7 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
         if (MiddlewareRegistry.isNextRequest(this.request)){
             return this.request.nextUrl.pathname;
         } 
-        return (this.request as NextApiRequest).url;
+        return this.request.url.split('?')[0];
     
     }
 
