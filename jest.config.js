@@ -1,11 +1,11 @@
 process.env.ENVIRONMENT = 'test'
 
 const baseConfig = {
-  moduleNameMapper: {
-    '@tests/(.*)': '<rootDir>/src/tests/$1',
-  },
-  roots: ['src'],
-}
+    moduleNameMapper: {
+        '@tests/(.*)': '<rootDir>/src/tests/$1',
+    },
+    roots: ['src'],
+};
 
 const unitConfig = {
   testRegex: ['/*.spec.*$'],
