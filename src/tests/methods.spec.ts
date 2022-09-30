@@ -5,6 +5,7 @@ describe('MiddlewareConfig.methods', () => {
     it('should execute middleware for specified Http verb provided', async () => {
         const request = { url: '/api/a', method: 'GET' } as NextApiRequest;
         const registry = new MiddlewareRegistry(request);
+
         // GIVEN route /api/a using two different middlewares
         const middlewareA = jest.fn();
         const middlewareB = jest.fn();
