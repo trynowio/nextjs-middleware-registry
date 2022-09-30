@@ -1,4 +1,4 @@
-process.env.ENVIRONMENT = 'test';
+process.env.ENVIRONMENT = 'test'
 
 const baseConfig = {
     moduleNameMapper: {
@@ -8,9 +8,9 @@ const baseConfig = {
 };
 
 const unitConfig = {
-    testRegex: ['/*.spec.*$'],
-    ...baseConfig,
-};
+  testRegex: ['/*.spec.*$'],
+  ...baseConfig,
+}
 
 module.exports = {
     preset: 'ts-jest',
