@@ -4,8 +4,8 @@
  * @param unshuffledArray Array to randomize
  */
 export function shuffle(unshuffledArray: any[]) {
-    return unshuffledArray
-        .map(value => ({ value, sort: Math.random() }))
-        .sort((a, b) => a.sort - b.sort)
-        .map(({ value }) => value);
+  return unshuffledArray
+    .map((value) => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value)
 }
