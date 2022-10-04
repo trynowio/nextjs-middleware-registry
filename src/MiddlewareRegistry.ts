@@ -40,12 +40,33 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
    */
   public async execute() {
     const middlewareChain = this.composeMiddlewareChain()
-    let middlewareExitCode: MiddlewareExitCode = MiddlewareExitCode.NEXT
+    let middlewareExitCode: MiddlewareExitCode = MiddlewareExitCode.NEXT_IN_CHAIN
     let middlewareFunction = middlewareChain.next()
     do {
-      middlewareExitCode = (await middlewareFunction.value(this.request)) || MiddlewareExitCode.NEXT
-      middlewareFunction = middlewareChain.next()
-    } while (middlewareExitCode !== MiddlewareExitCode.EXIT)
+      if (Array.isArray(middlewareFunction?.value)) {
+        middlewareExitCode = await this.executeMiddlewareArray(middlewareFunction.value) || MiddlewareExitCode.NEXT_IN_CHAIN
+        middlewareFunction = middlewareChain.next()
+      } else {
+        middlewareExitCode = await (middlewareFunction.value as MiddlewareFunction)(this.request) || MiddlewareExitCode.NEXT_IN_CHAIN
+        middlewareFunction = middlewareChain.next()
+      }
+    } while (middlewareExitCode !== MiddlewareExitCode.EXIT_CHAIN)
+  }
+
+  /**
+   * Executes the middleware array on the request.
+   * @param middlewareFunctionArray Array of middleware functions.
+   * @private
+   */
+  private async executeMiddlewareArray(middlewareFunctionArray: MiddlewareFunction[]) {
+    const middlewareArrayGenerator = this.composeMiddlewareArray(middlewareFunctionArray)
+    let middlewareExitCode: MiddlewareExitCode = MiddlewareExitCode.NEXT_IN_ARRAY
+    let middlewareFunction = middlewareArrayGenerator.next()
+    do {
+      middlewareExitCode = await middlewareFunction.value(this.request) || MiddlewareExitCode.NEXT_IN_ARRAY
+      middlewareFunction = middlewareArrayGenerator.next()
+    } while (middlewareExitCode === MiddlewareExitCode.NEXT_IN_ARRAY)
+    return middlewareExitCode
   }
 
   /**
@@ -53,19 +74,26 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
    * route configurations to run middleware against.
    * @private
    */
-  private *composeMiddlewareChain(): Generator<MiddlewareFunction, MiddlewareFunction, undefined> {
+  private *composeMiddlewareChain(): Generator<MiddlewareFunction | MiddlewareFunction[], MiddlewareFunction, undefined> {
     for (const [serializedKey, config] of this.registry) {
       const route = this.deserializeKeyToPath(serializedKey)
       if (
         pathToRegexp(route).test(this.getRequestPath()) &&
         (!config.methods || config.methods?.includes(this.request.method))
       ) {
-        Array.isArray(config.middleware) ? yield* config.middleware : yield config.middleware
-        if (!config.transparent) return async () => MiddlewareExitCode.EXIT
+        yield config.middleware
+        if (!config.transparent) return async () => MiddlewareExitCode.EXIT_CHAIN
       }
     }
     // Append an implicit EXIT if none was previously defined.
-    return async () => MiddlewareExitCode.EXIT
+    return async () => MiddlewareExitCode.EXIT_CHAIN
+  }
+
+  private *composeMiddlewareArray(middlewareFunctionArray: MiddlewareFunction[]): Generator<MiddlewareFunction, MiddlewareFunction, undefined> {
+    for (const middlewareFunction of middlewareFunctionArray) {
+      yield middlewareFunction
+    }
+    return async () => MiddlewareExitCode.NEXT_IN_CHAIN
   }
 
   /**
