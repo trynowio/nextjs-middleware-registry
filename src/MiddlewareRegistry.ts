@@ -43,11 +43,13 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
     let middlewareExitCode: MiddlewareExitCode = MiddlewareExitCode.NEXT_IN_CHAIN
     let middlewareFunction = middlewareChain.next()
     do {
-      if (Array.isArray(middlewareFunction?.value)) {
-        middlewareExitCode = await this.executeMiddlewareArray(middlewareFunction.value) || MiddlewareExitCode.NEXT_IN_CHAIN
+      if (Array.isArray(middlewareFunction.value)) {
+        middlewareExitCode =
+          (await this.executeMiddlewareArray(middlewareFunction.value)) || MiddlewareExitCode.NEXT_IN_CHAIN
         middlewareFunction = middlewareChain.next()
       } else {
-        middlewareExitCode = await (middlewareFunction.value as MiddlewareFunction)(this.request) || MiddlewareExitCode.NEXT_IN_CHAIN
+        middlewareExitCode =
+          (await (middlewareFunction.value as MiddlewareFunction)(this.request)) || MiddlewareExitCode.NEXT_IN_CHAIN
         middlewareFunction = middlewareChain.next()
       }
     } while (middlewareExitCode !== MiddlewareExitCode.EXIT_CHAIN)
@@ -63,7 +65,7 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
     let middlewareExitCode: MiddlewareExitCode = MiddlewareExitCode.NEXT_IN_ARRAY
     let middlewareFunction = middlewareArrayGenerator.next()
     do {
-      middlewareExitCode = await middlewareFunction.value(this.request) || MiddlewareExitCode.NEXT_IN_ARRAY
+      middlewareExitCode = (await middlewareFunction.value(this.request)) || MiddlewareExitCode.NEXT_IN_ARRAY
       middlewareFunction = middlewareArrayGenerator.next()
     } while (middlewareExitCode === MiddlewareExitCode.NEXT_IN_ARRAY)
     return middlewareExitCode
@@ -74,7 +76,11 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
    * route configurations to run middleware against.
    * @private
    */
-  private *composeMiddlewareChain(): Generator<MiddlewareFunction | MiddlewareFunction[], MiddlewareFunction, undefined> {
+  private *composeMiddlewareChain(): Generator<
+    MiddlewareFunction | MiddlewareFunction[],
+    MiddlewareFunction,
+    undefined
+  > {
     for (const [serializedKey, config] of this.registry) {
       const route = this.deserializeKeyToPath(serializedKey)
       if (
@@ -89,7 +95,9 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
     return async () => MiddlewareExitCode.EXIT_CHAIN
   }
 
-  private *composeMiddlewareArray(middlewareFunctionArray: MiddlewareFunction[]): Generator<MiddlewareFunction, MiddlewareFunction, undefined> {
+  private *composeMiddlewareArray(
+    middlewareFunctionArray: MiddlewareFunction[]
+  ): Generator<MiddlewareFunction, MiddlewareFunction, undefined> {
     for (const middlewareFunction of middlewareFunctionArray) {
       yield middlewareFunction
     }
