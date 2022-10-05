@@ -8,5 +8,11 @@ export default {
     dir: 'dist',
     format: 'cjs',
   },
-  plugins: [typescript(), nodeResolve(), terser()],
+  plugins: [
+    typescript({
+      exclude: ['src/tests/**'],
+    }),
+    nodeResolve(),
+    terser(),
+  ],
 }
