@@ -8,7 +8,7 @@ const baseConfig = {
 }
 
 const unitConfig = {
-  testRegex: ['/*.u.spec.*$'],
+  testRegex: ['/*.spec.*$'],
   ...baseConfig,
 }
 
