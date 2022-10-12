@@ -1,7 +1,7 @@
-import { MiddlewareFunction } from './MiddlewareFunction'
+import { Middleware } from './Middleware'
 
 export interface MiddlewareConfig {
-  middleware: MiddlewareFunction | MiddlewareFunction[]
+  middleware: Middleware | Middleware[]
   methods?: string[]
   transparent?: boolean
 }

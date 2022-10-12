@@ -1,5 +1,13 @@
 import { MiddlewareRegistry } from '../MiddlewareRegistry'
 import { NextApiRequest } from 'next'
+import { Middleware } from '../Middleware'
+import { MiddlewareExitCode } from '../MiddlewareExitCode'
+
+class TestClass extends Middleware {
+  async middleware() {
+    return MiddlewareExitCode.NEXT_IN_CHAIN
+  }
+}
 
 describe('MiddlewareConfig.transparent', () => {
   it(
@@ -8,9 +16,14 @@ describe('MiddlewareConfig.transparent', () => {
       // GIVEN 3 middlewares A, B, and C all added with transparent config
       const request = { url: '/api/a' } as NextApiRequest
       const registry = new MiddlewareRegistry(request)
-      const middlewareA = jest.fn()
-      const middlewareB = jest.fn()
-      const middlewareC = jest.fn()
+      const middlewareA = TestClass.configure()
+      const middlewareB = TestClass.configure()
+      const middlewareC = TestClass.configure()
+
+      jest.spyOn(middlewareA, 'middleware')
+      jest.spyOn(middlewareB, 'middleware')
+      jest.spyOn(middlewareC, 'middleware')
+
       registry.add('/api/(.*)', middlewareA, { transparent: true })
       registry.add('/api/a', middlewareB, { transparent: true })
       registry.add('(.*)/api/a', middlewareC, { transparent: true })
@@ -19,9 +32,9 @@ describe('MiddlewareConfig.transparent', () => {
       await registry.execute()
 
       // EXPECT all middlewares to run
-      expect(middlewareA).toHaveBeenCalledTimes(1)
-      expect(middlewareB).toHaveBeenCalledTimes(1)
-      expect(middlewareC).toHaveBeenCalledTimes(1)
+      expect(middlewareA.middleware).toHaveBeenCalledTimes(1)
+      expect(middlewareB.middleware).toHaveBeenCalledTimes(1)
+      expect(middlewareC.middleware).toHaveBeenCalledTimes(1)
     }
   )
 
@@ -31,9 +44,14 @@ describe('MiddlewareConfig.transparent', () => {
       // GIVEN 3 middlewares A, B, and C, with middleware B non-transparent
       const request = { url: '/api/a' } as NextApiRequest
       const registry = new MiddlewareRegistry(request)
-      const middlewareA = jest.fn()
-      const middlewareB = jest.fn()
-      const middlewareC = jest.fn()
+      const middlewareA = TestClass.configure()
+      const middlewareB = TestClass.configure()
+      const middlewareC = TestClass.configure()
+
+      jest.spyOn(middlewareA, 'middleware')
+      jest.spyOn(middlewareB, 'middleware')
+      jest.spyOn(middlewareC, 'middleware')
+
       registry.add('/api/(.*)', middlewareA, { transparent: true })
       registry.add('/api/a', middlewareB, { transparent: false })
       registry.add('(.*)/api/a', middlewareC, { transparent: true })
@@ -42,9 +60,9 @@ describe('MiddlewareConfig.transparent', () => {
       await registry.execute()
 
       // EXPECT middlewares added before the first non-transparent middleware to run
-      expect(middlewareA).toHaveBeenCalledTimes(1)
-      expect(middlewareB).toHaveBeenCalledTimes(1)
-      expect(middlewareC).not.toHaveBeenCalled()
+      expect(middlewareA.middleware).toHaveBeenCalledTimes(1)
+      expect(middlewareB.middleware).toHaveBeenCalledTimes(1)
+      expect(middlewareC.middleware).not.toHaveBeenCalled()
     }
   )
 })
