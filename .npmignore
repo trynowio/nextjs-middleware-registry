@@ -2,3 +2,9 @@
 src/
 rollup.config.js
 tsconfig.json
+.eslintignore
+.eslintrc.json
+.gitignore
+.prettierignore
+.prettierrc.json
+jest.config.js
