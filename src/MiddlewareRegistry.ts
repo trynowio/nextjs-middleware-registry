@@ -2,8 +2,8 @@ import { pathToRegexp } from 'path-to-regexp'
 import { NextRequest } from 'next/server'
 import { MiddlewareExitCode } from './MiddlewareExitCode'
 import { MiddlewareConfig } from './MiddlewareConfig'
-import { MiddlewareFunction } from './MiddlewareFunction'
 import { MiddlewareRequest } from './MiddlewareRequest'
+import { Middleware } from './Middleware'
 
 export class MiddlewareRegistry<R extends MiddlewareRequest> {
   private registry: Map<string, MiddlewareConfig> = new Map()
@@ -27,11 +27,7 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
    * @param middleware Middleware function to run if the route is a match.
    * @param config Extra parameters to configure the entry
    */
-  public add(
-    route: string,
-    middleware: MiddlewareFunction | MiddlewareFunction[],
-    config?: Omit<MiddlewareConfig, 'middleware'>
-  ) {
+  public add(route: string, middleware: Middleware | Middleware[], config?: Omit<MiddlewareConfig, 'middleware'>) {
     this.registry.set(this.serializeToRegistryKey(route, config?.methods), { ...config, middleware })
   }
 
@@ -41,32 +37,36 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
   public async execute() {
     const middlewareChain = this.composeMiddlewareChain()
     let middlewareExitCode: MiddlewareExitCode = MiddlewareExitCode.NEXT_IN_CHAIN
-    let middlewareFunction = middlewareChain.next()
+    let middleware = middlewareChain.next()
     do {
-      if (Array.isArray(middlewareFunction.value)) {
-        middlewareExitCode =
-          (await this.executeMiddlewareArray(middlewareFunction.value)) || MiddlewareExitCode.NEXT_IN_CHAIN
-        middlewareFunction = middlewareChain.next()
+      if (Array.isArray(middleware.value)) {
+        middlewareExitCode = (await this.executeMiddlewareArray(middleware.value)) || MiddlewareExitCode.NEXT_IN_CHAIN
+        middleware = middlewareChain.next()
       } else {
         middlewareExitCode =
-          (await (middlewareFunction.value as MiddlewareFunction)(this.request)) || MiddlewareExitCode.NEXT_IN_CHAIN
-        middlewareFunction = middlewareChain.next()
+          typeof middleware.value === 'string'
+            ? middleware.value
+            : (await (middleware.value as Middleware).middleware(this.request)) || MiddlewareExitCode.NEXT_IN_CHAIN
+        middleware = middlewareChain.next()
       }
     } while (middlewareExitCode !== MiddlewareExitCode.EXIT_CHAIN)
   }
 
   /**
    * Executes the middleware array on the request.
-   * @param middlewareFunctionArray Array of middleware functions.
+   * @param middlewares Array of middleware functions.
    * @private
    */
-  private async executeMiddlewareArray(middlewareFunctionArray: MiddlewareFunction[]) {
-    const middlewareArrayGenerator = this.composeMiddlewareArray(middlewareFunctionArray)
+  private async executeMiddlewareArray(middlewares: Middleware[]) {
+    const middlewareArray = this.composeMiddlewareArray(middlewares)
     let middlewareExitCode: MiddlewareExitCode = MiddlewareExitCode.NEXT_IN_ARRAY
-    let middlewareFunction = middlewareArrayGenerator.next()
+    let middleware = middlewareArray.next()
     do {
-      middlewareExitCode = (await middlewareFunction.value(this.request)) || MiddlewareExitCode.NEXT_IN_ARRAY
-      middlewareFunction = middlewareArrayGenerator.next()
+      middlewareExitCode =
+        typeof middleware.value === 'string'
+          ? middleware.value
+          : (await (middleware.value as Middleware).middleware(this.request)) || MiddlewareExitCode.NEXT_IN_ARRAY
+      middleware = middlewareArray.next()
     } while (middlewareExitCode === MiddlewareExitCode.NEXT_IN_ARRAY)
     return middlewareExitCode
   }
@@ -76,11 +76,7 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
    * route configurations to run middleware against.
    * @private
    */
-  private *composeMiddlewareChain(): Generator<
-    MiddlewareFunction | MiddlewareFunction[],
-    MiddlewareFunction,
-    undefined
-  > {
+  private *composeMiddlewareChain(): Generator<Middleware | Middleware[], MiddlewareExitCode> {
     for (const [serializedKey, config] of this.registry) {
       const route = this.deserializeKeyToPath(serializedKey)
       if (
@@ -88,20 +84,18 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
         (!config.methods || config.methods?.includes(this.request.method))
       ) {
         yield config.middleware
-        if (!config.transparent) return async () => MiddlewareExitCode.EXIT_CHAIN
+        if (!config.transparent) return MiddlewareExitCode.EXIT_CHAIN
       }
     }
     // Append an implicit EXIT if none was previously defined.
-    return async () => MiddlewareExitCode.EXIT_CHAIN
+    return MiddlewareExitCode.EXIT_CHAIN
   }
 
-  private *composeMiddlewareArray(
-    middlewareFunctionArray: MiddlewareFunction[]
-  ): Generator<MiddlewareFunction, MiddlewareFunction, undefined> {
-    for (const middlewareFunction of middlewareFunctionArray) {
-      yield middlewareFunction
+  private *composeMiddlewareArray(middlewares: Middleware[]): Generator<Middleware, MiddlewareExitCode> {
+    for (const middleware of middlewares) {
+      yield middleware
     }
-    return async () => MiddlewareExitCode.NEXT_IN_CHAIN
+    return MiddlewareExitCode.NEXT_IN_CHAIN
   }
 
   /**

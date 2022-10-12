@@ -1,5 +1,13 @@
 import { MiddlewareRegistry } from '../MiddlewareRegistry'
 import { NextApiRequest } from 'next'
+import { Middleware } from '../Middleware'
+import { MiddlewareExitCode } from '../MiddlewareExitCode'
+
+class TestClass extends Middleware {
+  async middleware() {
+    return MiddlewareExitCode.NEXT_IN_CHAIN
+  }
+}
 
 describe('MiddlewareConfig.methods', () => {
   it('should execute middleware for specified Http verb provided', async () => {
@@ -7,8 +15,12 @@ describe('MiddlewareConfig.methods', () => {
     const registry = new MiddlewareRegistry(request)
 
     // GIVEN route /api/a using two different middlewares
-    const middlewareA = jest.fn()
-    const middlewareB = jest.fn()
+    const middlewareA = TestClass.configure()
+    const middlewareB = TestClass.configure()
+
+    jest.spyOn(middlewareA, 'middleware')
+    jest.spyOn(middlewareB, 'middleware')
+
     registry.add('/api/a', middlewareA, { methods: ['GET'] })
     registry.add('/api/a', middlewareB, { methods: ['POST'] })
 
@@ -16,7 +28,7 @@ describe('MiddlewareConfig.methods', () => {
     await registry.execute()
 
     // EXPECT middleware associated with specified Http verb is executed
-    expect(middlewareA).toHaveBeenCalled()
-    expect(middlewareB).not.toHaveBeenCalled()
+    expect(middlewareA.middleware).toHaveBeenCalled()
+    expect(middlewareB.middleware).not.toHaveBeenCalled()
   })
 })

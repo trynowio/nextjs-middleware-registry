@@ -1,13 +1,24 @@
 import { MiddlewareRegistry } from '../MiddlewareRegistry'
 import { NextApiRequest } from 'next'
+import { Middleware } from '../Middleware'
+import { MiddlewareExitCode } from '../MiddlewareExitCode'
+
+class TestClass extends Middleware {
+  async middleware() {
+    return MiddlewareExitCode.NEXT_IN_CHAIN
+  }
+}
 
 describe('MiddlewareRegistry.add', () => {
   it('should run middlewares for added endpoints', async () => {
     // GIVEN a request to API endpoint A, and 2 middlewares A and B
     const request = { url: '/api/a' } as NextApiRequest
     const registry = new MiddlewareRegistry(request)
-    const middlewareA = jest.fn()
-    const middlewareB = jest.fn()
+    const middlewareA = TestClass.configure()
+    const middlewareB = TestClass.configure()
+
+    jest.spyOn(middlewareA, 'middleware')
+    jest.spyOn(middlewareB, 'middleware')
 
     expect(registry['registry'].size).toEqual(0)
 
@@ -17,8 +28,8 @@ describe('MiddlewareRegistry.add', () => {
     await registry.execute()
 
     // EXPECT middleware A to have executed, and not middleware B
-    expect(middlewareA).toHaveBeenCalledTimes(1)
-    expect(middlewareB).not.toHaveBeenCalled()
+    expect(middlewareA.middleware).toHaveBeenCalledTimes(1)
+    expect(middlewareB.middleware).not.toHaveBeenCalled()
     expect(registry['registry'].size).toEqual(2)
   })
 })
