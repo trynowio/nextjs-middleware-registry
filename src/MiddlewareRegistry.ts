@@ -23,12 +23,26 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
 
   /**
    * Adds a middleware entry to the registry using the provided inputs.
+   *
+   * If called multiple times for the same route and HTTP methods, will log a warning and only preserve the last entry
+   * to be added. This warning is disabled when debug mode is set to true, as it may be desirable to overwrite an
+   * existing entry in the registry during development.
+   *
    * @param route Route to attempt to match against.
    * @param middleware Middleware function to run if the route is a match.
    * @param config Extra parameters to configure the entry
+   * @param debug Set to true to skip checking the registry for existing entries
    */
-  public add(route: string, middleware: Middleware | Middleware[], config?: Omit<MiddlewareConfig, 'middleware'>) {
-    this.registry.set(this.serializeToRegistryKey(route, config?.methods), { ...config, middleware })
+  public add(
+    route: string,
+    middleware: Middleware | Middleware[],
+    config?: Omit<MiddlewareConfig, 'middleware'>,
+    debug?: boolean
+  ) {
+    const serializedRegistryKey = this.serializeToRegistryKey(route, config?.methods)
+    if (!debug && this.registry.has(serializedRegistryKey))
+      console.warn(`Duplicate entry detected for: ${route}. Only the last entry to be added will be preserved.`)
+    this.registry.set(serializedRegistryKey, { ...config, middleware })
   }
 
   /**
