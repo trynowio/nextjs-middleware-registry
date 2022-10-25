@@ -37,8 +37,8 @@ describe('MiddlewareRegistry.add', () => {
     expect(registry['registry'].size).toEqual(2)
   })
 
-  it.each([{ methods: ['GET'] }, undefined, { methods: ['GET', 'POST'] }])(
-    'should log a warning for duplicate entries when debug is false',
+  it.each([{ methods: ['GET'] }, { methods: ['GET', 'POST'] }, undefined, null])(
+    'should log a warning for duplicate entries when debug is false, config: %p',
     async (config) => {
       // GIVEN a request to API endpoint A, and 2 middlewares applied to the same route
       const request = { url: '/api/a' } as NextApiRequest
@@ -47,7 +47,7 @@ describe('MiddlewareRegistry.add', () => {
 
       expect(registry['registry'].size).toEqual(0)
 
-      // WHEN endpoints A and B are added, and registry is executed
+      // WHEN endpoint A is added twice using the same config.methods (or no config)
       registry.add('/api/a', TestClass.configure(), config)
       registry.add('/api/a', TestClass.configure(), config)
 
@@ -57,17 +57,20 @@ describe('MiddlewareRegistry.add', () => {
     }
   )
 
-  it('should not log a warning for duplicate entries when debug is true', async () => {
-    // GIVEN a request to API endpoint A, and 2 middlewares applied to the same route
-    const request = { url: '/api/a' } as NextApiRequest
-    const registry = new MiddlewareRegistry(request)
-    const consoleWarnSpy = jest.spyOn(console, 'warn')
+  it.each([{ methods: ['GET'] }, { methods: ['GET', 'POST'] }, undefined, null])(
+    'should not log a warning for duplicate entries when debug is true, config: %p',
+    async (config) => {
+      // GIVEN a request to API endpoint A, and 2 middlewares applied to the same route
+      const request = { url: '/api/a' } as NextApiRequest
+      const registry = new MiddlewareRegistry(request)
+      const consoleWarnSpy = jest.spyOn(console, 'warn')
 
-    // WHEN endpoints A and B are added, and registry is executed
-    registry.add('/api/a', TestClass.configure(), null, true)
-    registry.add('/api/a', TestClass.configure(), null, true)
+      // WHEN endpoint A is added twice with debug set to true
+      registry.add('/api/a', TestClass.configure(), config, true)
+      registry.add('/api/a', TestClass.configure(), config, true)
 
-    // EXPECT nothing to be logged
-    expect(consoleWarnSpy).not.toHaveBeenCalled()
-  })
+      // EXPECT nothing to be logged
+      expect(consoleWarnSpy).not.toHaveBeenCalled()
+    }
+  )
 })
