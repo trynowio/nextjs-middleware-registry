@@ -1,13 +1,13 @@
 {
   "name": "nextjs-middleware-registry",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A middleware registry for NextJS.",
   "main": "dist/index.js",
   "types": "dist/types",
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c --watch",
-    "test": "jest -c jest.config.js",
+    "test": "jest -c jest.config.js --silent",
     "lint": "eslint --ext .ts,.js ./src/",
     "lint:fix": "eslint --fix . --ext .ts,.js ./src/*"
   },
