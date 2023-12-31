@@ -1,6 +1,6 @@
 {
   "name": "nextjs-middleware-registry",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A middleware registry for NextJS.",
   "main": "dist/index.js",
   "types": "dist/types",
@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/trynowio/nextjs-middleware-registry#readme",
   "peerDependencies": {
-    "next": "^12.2.3"
+    "next": ">=12"
   },
   "dependencies": {
     "path-to-regexp": "^6.2.1"
