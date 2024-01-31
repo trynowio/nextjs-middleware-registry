@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
     "moduleResolution": "Node",
@@ -10,7 +11,7 @@
       "@tests/*": [
         "src/tests/*"
       ]
-    },
+    }
   },
   "include": ["src/**/*"]
 }

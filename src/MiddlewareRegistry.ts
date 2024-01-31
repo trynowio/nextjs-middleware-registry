@@ -2,15 +2,17 @@ import { pathToRegexp } from 'path-to-regexp'
 import { NextRequest } from 'next/server'
 import { MiddlewareExitCode } from './MiddlewareExitCode'
 import { MiddlewareConfig } from './MiddlewareConfig'
-import { MiddlewareRequest } from './MiddlewareRequest'
+import { MiddlewareRequest, MiddlewareResponse } from './MiddlewareRequest'
 import { Middleware } from './Middleware'
 
 export class MiddlewareRegistry<R extends MiddlewareRequest> {
   private registry: Map<string, MiddlewareConfig> = new Map()
   private readonly request: R
+  private readonly response: MiddlewareResponse
 
-  constructor(request: R) {
+  constructor(request: R, response: MiddlewareResponse) {
     this.request = request
+    this.response = response
   }
 
   /**
@@ -60,7 +62,8 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
         middlewareExitCode =
           typeof middleware.value === 'string'
             ? middleware.value
-            : (await (middleware.value as Middleware).middleware(this.request)) || MiddlewareExitCode.NEXT_IN_CHAIN
+            : (await (middleware.value as Middleware).middleware(this.request, this.response)) ||
+              MiddlewareExitCode.NEXT_IN_CHAIN
         middleware = middlewareChain.next()
       }
     } while (middlewareExitCode !== MiddlewareExitCode.EXIT_CHAIN)
@@ -79,7 +82,8 @@ export class MiddlewareRegistry<R extends MiddlewareRequest> {
       middlewareExitCode =
         typeof middleware.value === 'string'
           ? middleware.value
-          : (await (middleware.value as Middleware).middleware(this.request)) || MiddlewareExitCode.NEXT_IN_ARRAY
+          : (await (middleware.value as Middleware).middleware(this.request, this.response)) ||
+            MiddlewareExitCode.NEXT_IN_ARRAY
       middleware = middlewareArray.next()
     } while (middlewareExitCode === MiddlewareExitCode.NEXT_IN_ARRAY)
     return middlewareExitCode
