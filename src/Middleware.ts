@@ -1,5 +1,5 @@
 import { MiddlewareExitCode } from './MiddlewareExitCode'
-import { MiddlewareRequest } from './MiddlewareRequest'
+import { MiddlewareRequest, MiddlewareResponse } from './MiddlewareRequest'
 
 export abstract class Middleware<O = any> {
   private readonly _options: O
@@ -11,7 +11,7 @@ export abstract class Middleware<O = any> {
     this._options = options
   }
 
-  public abstract middleware(req: MiddlewareRequest): Promise<MiddlewareExitCode | void>
+  public abstract middleware(req: MiddlewareRequest, res: MiddlewareResponse): Promise<MiddlewareExitCode | void>
   public static configure<O, T extends Middleware>(this: new (options?: O) => T, options?: O): T {
     return new this(options)
   }
